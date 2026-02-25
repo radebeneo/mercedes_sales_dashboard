@@ -184,5 +184,7 @@ def update_dashboard(selected_models, selected_fuels, price_range):
     return fig1, fig2, fig3, fig4, fig5, fig6, table_data
 
 
+server = app.server
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=8050, debug=False)
