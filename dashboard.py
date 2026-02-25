@@ -124,12 +124,12 @@ def update_dashboard(selected_models, selected_fuels, price_range):
 
     # 1. Sales Trends over Time
     # Aggregate first, then plot
-    sales_trend = filtered_df.groupby("Year")["Sales Volume"].sum().reset_index()
-    fig1 = px.line(sales_trend, x="Year", y="Sales Volume", title="Total Sales Volume over Years")
+    sales_trend = filtered_df.groupby(["Year", "Fuel Type"], observed=True)["Sales Volume"].sum().reset_index()
+    fig1 = px.line(sales_trend, x="Year", y="Sales Volume", color="Fuel Type", title="Total Sales Volume over Years by Fuel Type")
 
     # 2. Model Popularity
-    model_popularity = filtered_df.groupby("Model", observed=True)["Sales Volume"].sum().reset_index().sort_values("Sales Volume", ascending=False)
-    fig2 = px.bar(model_popularity, x="Model", y="Sales Volume", title="Sales Volume by Model")
+    model_popularity = filtered_df.groupby(["Model", "Fuel Type"], observed=True)["Sales Volume"].sum().reset_index().sort_values("Sales Volume", ascending=False)
+    fig2 = px.bar(model_popularity, x="Model", y="Sales Volume", color="Fuel Type", barmode="group", title="Sales Volume by Model and Fuel Type")
 
     # 3. Market Share by Fuel Type
     fuel_share = filtered_df.groupby("Fuel Type", observed=True)["Sales Volume"].sum().reset_index()
