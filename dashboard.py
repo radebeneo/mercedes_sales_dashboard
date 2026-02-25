@@ -143,15 +143,40 @@ def update_dashboard(selected_models, selected_fuels, price_range):
     # 5. Performance vs. Price
     # Scatter plot with millions of points will CRASH the browser.
     # We MUST sample this for visualization.
-    if len(filtered_df) > 10000:
-        scatter_df = filtered_df.sample(10000)
+    if len(filtered_df) > 5000:
+        scatter_df = filtered_df.sample(5000)
     else:
         scatter_df = filtered_df
-    fig5 = px.scatter(scatter_df, x="Base Price (USD)", y="Horsepower", color="Fuel Type", hover_name="Model", title="Price vs. Horsepower (Sampled 10k points)")
+    fig5 = px.scatter(scatter_df, x="Base Price (USD)", y="Horsepower", color="Fuel Type", hover_name="Model", title="Price vs. Horsepower (Sampled 5k points)")
 
     # 6. Colour Preferences
     color_pref = filtered_df.groupby(["Color", "Model"], observed=True)["Sales Volume"].sum().reset_index()
-    fig6 = px.treemap(color_pref, path=["Color", "Model"], values="Sales Volume", title="Colour Preferences by Model")
+    
+    # Plotly Express treemap can fail with non-ordered categorical data when performing internal aggregations.
+    # We convert the categorical columns to string to avoid TypeError: Cannot perform max with non-ordered Categorical
+    color_pref["Color"] = color_pref["Color"].astype(str)
+    color_pref["Model"] = color_pref["Model"].astype(str)
+
+    color_map = {
+        "Yellow": "yellow",
+        "Black": "black",
+        "Grey": "grey",
+        "White": "white",
+        "Silver": "silver",
+        "Brown": "brown",
+        "Blue": "blue",
+        "Red": "red",
+        "Green": "green",
+        "Orange": "orange"
+    }
+    fig6 = px.treemap(
+        color_pref, 
+        path=["Color", "Model"], 
+        values="Sales Volume", 
+        color="Color",
+        color_discrete_map=color_map,
+        title="Colour Preferences by Model"
+    )
 
     # DataTable - LIMIT TO 1000 ROWS
     table_data = filtered_df.head(1000).to_dict("records")
