@@ -4,7 +4,17 @@ import dash
 from dash import dcc, html, Input, Output, dash_table
 import plotly.express as px
 
-df = pd.read_csv("mercedes_benz_sales_2020_2025.csv")
+df = pd.read_csv("mercedes_benz_sales_2020_2025.csv", dtype={
+    "Model": "category",
+    "Region": "category",
+    "Color": "category",
+    "Fuel Type": "category",
+    "Turbo": "category",
+    "Year": "int16",
+    "Base Price (USD)": "int32",
+    "Horsepower": "int16",
+    "Sales Volume": "int32"
+})
 
 
 app = dash.Dash(__name__)
@@ -17,16 +27,17 @@ app.layout = (
         html.Label("Select Model:"),
         dcc.Dropdown(
             options=[{"label":model, "value":model} for model in df["Model"].unique()],
-            value="A-Class",
-            id="model-dropdown"
+            multi=True,
+            id="model-dropdown",
+            placeholder="Select model...",
         )
     ], style={"width": "30%", "display": "inline-block"}),
 
 
-        html.Div([
+    html.Div([
             html.Label("Select Fuel Type:"),
             dcc.Dropdown(
-                options=[{"label": f, "value": f} for f in df["Fuel Type"].unique()],
+                options=[{"label": fuel, "value": fuel} for fuel in df["Fuel Type"].unique()],
                 multi=True,
                 placeholder="Select fuel types...",
                 id="fuel-dropdown",
@@ -45,9 +56,10 @@ app.layout = (
                 {"label": "200000+", "value": "200000-999999"}
             ],
             placeholder="Select a price range...",
+            multi=True,
             id="price-range-dropdown",
         ),
-    ], style={"width": "30%", "display": "block", "marginLeft": "35%", "marginTop": "10px"}),
+    ], style={"width": "30%", "display": "inline-block", "marginLeft": "5%"}),
 
     html.H2("Sales Trends over Time"),
     dcc.Graph(id="sales-line-chart"),
@@ -76,3 +88,76 @@ app.layout = (
         style_cell={"textAlign": "left"}
     )
 ]))
+
+
+
+
+@app.callback(
+    [Output("sales-line-chart", "figure"),
+     Output("models-bar-chart", "figure"),
+     Output("fuel-share-pie-chart", "figure"),
+     Output("price-histogram", "figure"),
+     Output("price-vs-performance-scatterplot", "figure"),
+     Output("colour-treemap", "figure"),
+     Output("datatable-output", "data")],
+    [Input("model-dropdown", "value"),
+     Input("fuel-dropdown", "value"),
+     Input("price-range-dropdown", "value")]
+)
+def update_dashboard(selected_models, selected_fuels, price_range):
+    mask = pd.Series(True, index=df.index)
+
+    if selected_models:
+        mask &= df["Model"].isin(selected_models)
+
+    if selected_fuels:
+        mask &= df["Fuel Type"].isin(selected_fuels)
+
+    if price_range:
+        price_mask = pd.Series(False, index=df.index)
+        for pr in price_range:
+            min_p, max_p = map(int, pr.split("-"))
+            price_mask |= (df["Base Price (USD)"] >= min_p) & (df["Base Price (USD)"] <= max_p)
+        mask &= price_mask
+
+    filtered_df = df[mask]
+
+    # 1. Sales Trends over Time
+    # Aggregate first, then plot
+    sales_trend = filtered_df.groupby("Year")["Sales Volume"].sum().reset_index()
+    fig1 = px.line(sales_trend, x="Year", y="Sales Volume", title="Total Sales Volume over Years")
+
+    # 2. Model Popularity
+    model_popularity = filtered_df.groupby("Model", observed=True)["Sales Volume"].sum().reset_index().sort_values("Sales Volume", ascending=False)
+    fig2 = px.bar(model_popularity, x="Model", y="Sales Volume", title="Sales Volume by Model")
+
+    # 3. Market Share by Fuel Type
+    fuel_share = filtered_df.groupby("Fuel Type", observed=True)["Sales Volume"].sum().reset_index()
+    fig3 = px.pie(fuel_share, values="Sales Volume", names="Fuel Type", title="Market Share by Fuel Type")
+
+    # 4. Price Distribution
+    # Histogram on large data can be slow, but let's keep it for now as px.histogram is usually okay if not too many points.
+    # Actually, for 12M points, it might be slow.
+    fig4 = px.histogram(filtered_df, x="Base Price (USD)", nbins=20, title="Distribution of Base Prices")
+
+    # 5. Performance vs. Price
+    # Scatter plot with millions of points will CRASH the browser.
+    # We MUST sample this for visualization.
+    if len(filtered_df) > 10000:
+        scatter_df = filtered_df.sample(10000)
+    else:
+        scatter_df = filtered_df
+    fig5 = px.scatter(scatter_df, x="Base Price (USD)", y="Horsepower", color="Fuel Type", hover_name="Model", title="Price vs. Horsepower (Sampled 10k points)")
+
+    # 6. Colour Preferences
+    color_pref = filtered_df.groupby(["Color", "Model"], observed=True)["Sales Volume"].sum().reset_index()
+    fig6 = px.treemap(color_pref, path=["Color", "Model"], values="Sales Volume", title="Colour Preferences by Model")
+
+    # DataTable - LIMIT TO 1000 ROWS
+    table_data = filtered_df.head(1000).to_dict("records")
+
+    return fig1, fig2, fig3, fig4, fig5, fig6, table_data
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
