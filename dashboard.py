@@ -29,7 +29,7 @@ app.layout = (
             options=[{"label":model, "value":model} for model in df["Model"].unique()],
             multi=True,
             id="model-dropdown",
-            placeholder="Select model...",
+
         )
     ], style={"width": "30%", "display": "inline-block"}),
 
@@ -39,7 +39,7 @@ app.layout = (
             dcc.Dropdown(
                 options=[{"label": fuel, "value": fuel} for fuel in df["Fuel Type"].unique()],
                 multi=True,
-                placeholder="Select fuel types...",
+
                 id="fuel-dropdown",
             ),
     ], style={"width": "30%", "display": "inline-block", "marginLeft": "5%"}),
@@ -55,7 +55,7 @@ app.layout = (
                 {"label": "150000 - 200000", "value": "150000-200000"},
                 {"label": "200000+", "value": "200000-999999"}
             ],
-            placeholder="Select a price range...",
+
             multi=True,
             id="price-range-dropdown",
         ),
