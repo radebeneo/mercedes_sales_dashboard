@@ -31,13 +31,13 @@ st.sidebar.header("Filters")
 selected_models = st.sidebar.multiselect(
     "Select Model:",
     options=sorted(df["Model"].unique()),
-    placeholder="Select model..."
+
 )
 
 selected_fuels = st.sidebar.multiselect(
     "Select Fuel Type:",
     options=sorted(df["Fuel Type"].unique()),
-    placeholder="Select fuel types..."
+
 )
 
 price_range_options = [
@@ -52,7 +52,7 @@ price_range_options = [
 selected_price_labels = st.sidebar.multiselect(
     "Select Price Range:",
     options=[label for label, val in price_range_options],
-    placeholder="Select a price range..."
+
 )
 
 # Apply filters
