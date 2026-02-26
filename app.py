@@ -2,24 +2,14 @@ import os
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import requests
 
 # Set page configuration
 st.set_page_config(page_title="Mercedes-Benz Global Sales Dashboard", layout="wide")
 
-# URL of the CSV file (raw file on GitHub or any public URL)
-CSV_URL = "https://raw.githubusercontent.com/radebeneo/mercedes_sales_dashboard/main/mercedes_benz_sales_2020_2025.csv"
-
 # Load data
 @st.cache_data
-def load_data(url):
-    # Download CSV to a temporary file
-    response = requests.get(url)
-    response.raise_for_status()  # Fail if URL is invalid
-    with open("temp_data.csv", "wb") as f:
-        f.write(response.content)
-
-    df = pd.read_csv("temp_data.csv", dtype={
+def load_data():
+    df = pd.read_csv("mercedes_benz_sales_2020_2025.csv", dtype={
         "Model": "category",
         "Region": "category",
         "Color": "category",
@@ -32,7 +22,7 @@ def load_data(url):
     })
     return df
 
-df = load_data(CSV_URL)
+df = load_data()
 
 st.title("Mercedes-Benz Global Sales 2020-2025")
 
