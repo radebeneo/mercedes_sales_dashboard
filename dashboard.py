@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 import dash
 from dash import dcc, html, Input, Output, State, dash_table
 import dash_bootstrap_components as dbc

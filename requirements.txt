@@ -1,10 +1,6 @@
-streamlit
-pandas
-numpy
-plotly
-scipy
-statsmodels
-dash
-dash-bootstrap-components
-pyarrow
-gunicorn
+dash==2.18.1
+dash-bootstrap-components==1.6.0
+pandas==2.2.2
+pyarrow==17.0.0
+plotly==5.24.1
+gunicorn==23.0.0
