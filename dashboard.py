@@ -20,7 +20,27 @@ import plotly.express as px
 
 # df.to_parquet("mercedes_benz_sales_2020_2025.parquet", index=False)
 
-df = pd.read_parquet("mercedes_benz_sales_2020_2025.parquet")
+use_cols = ["Model", "Fuel Type", "Base Price (USD)", "Year", "Sales Volume", "Horsepower", "Color"]
+
+dtypes = {
+    "Model": "category",
+    "Fuel Type": "category",
+    "Color": "category",
+    "Base Price (USD)": "int32",
+    "Year": "int16",
+    "Sales Volume": "int32",
+    "Horsepower": "int16",
+}
+
+df = pd.read_parquet("mercedes_benz_sales_2020_2025.parquet", columns=use_cols, engine='pyarrow')
+
+for col, dtype in dtypes.items():
+    df[col] = df[col].astype(dtype)
+
+df["Sales Volume"] = pd.to_numeric(df["Sales Volume"], downcast="integer")
+df["Year"] = pd.to_numeric(df["Year"], downcast="integer")
+df["Base Price (USD)"] = pd.to_numeric(df["Base Price (USD)"], downcast="integer")
+df["Horsepower"] = pd.to_numeric(df["Horsepower"], downcast="integer")
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SLATE])
 server = app.server
