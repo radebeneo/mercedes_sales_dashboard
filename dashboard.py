@@ -43,7 +43,7 @@ df["Base Price (USD)"] = pd.to_numeric(df["Base Price (USD)"], downcast="integer
 df["Horsepower"] = pd.to_numeric(df["Horsepower"], downcast="integer")
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SLATE])
-server = app.server
+
 
 # Helper function to create a graph inside a loading spinner
 def loading_graph(id):
