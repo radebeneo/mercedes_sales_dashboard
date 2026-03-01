@@ -33,6 +33,7 @@ The analysis is based on the [Mercedes Global Car Sales 2020-2025](https://www.k
 | **Horsepower**   | Engine power output                                       |
 | **Color**        | Vehicle paint color preferences                           |
 | **Sales Volume** | Transactional count (1 per row)                           |
+| **Turbo**        | Engine induction (Turbocharged or Naturally Aspirated)    |
 
 ##  Getting Started
 
@@ -113,6 +114,26 @@ Follow these steps to set up the environment and process the data before launchi
 </tr>
 <tr>
 <td><img src="assets/color-preference.png" alt=""></td>
+</tr>
+</table>
+
+<table style="width:100%">
+<tr>
+<th>Price Distribution by Induction</th>
+<th>Sales by Model & Induction</th>
+</tr>
+<tr>
+<td><img src="assets/turbo-vs-non-turbo.png" alt=""></td>
+<td><img src="assets/sales-by-turbo.png" alt=""></td>
+</tr>
+</table>
+
+<table style="width:100%">
+<tr>
+<th>Turbo Adoption Over Time</th>
+</tr>
+<tr>
+<td><img src="assets/turbo-adoption.png" alt=""></td>  
 </tr>
 </table>
 

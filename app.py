@@ -143,7 +143,7 @@ st.plotly_chart(fig6, use_container_width=True)
 
 # Assignment of Turbo and Non-Turbo Labels
 filtered_df = filtered_df.assign(
-        Engine_Type=filtered_df["Turbo"].map({
+        Induction=filtered_df["Turbo"].map({
             "No": "Naturally Aspirated",
             "Yes": "Turbocharged"
         })
@@ -161,25 +161,25 @@ with col5:
     else:
         box_df = filtered_df
 
-    fig7 = px.box(box_df, x="Engine_Type", y="Base Price (USD)", color="Engine_Type", template="plotly")
-    fig7.update_layout(xaxis_title="Engine Type",legend_title_text="Engine Type")
+    fig7 = px.box(box_df, x="Induction", y="Base Price (USD)", color="Induction", template="plotly")
+    fig7.update_layout(xaxis_title="Induction",legend_title_text="Induction")
     st.plotly_chart(fig7, use_container_width=True)
 
 
 with col6:
-    st.subheader("Total Sales Volume by Model & Engine Type")
+    st.subheader("Total Sales Volume by Model & Induction")
 
-    turbo_sales = (filtered_df.groupby(["Model", "Engine_Type"], observed=True)["Sales Volume"].sum().reset_index())
-    fig8 = px.bar(turbo_sales, x="Model", y="Sales Volume", color="Engine_Type", barmode="stack", template="plotly")
-    fig8.update_layout(legend_title_text="Engine Type", xaxis_title="Model")
+    turbo_sales = (filtered_df.groupby(["Model", "Induction"], observed=True)["Sales Volume"].sum().reset_index())
+    fig8 = px.bar(turbo_sales, x="Model", y="Sales Volume", color="Induction", barmode="stack", template="plotly")
+    fig8.update_layout(legend_title_text="Induction", xaxis_title="Model")
     st.plotly_chart(fig8, use_container_width=True)
 
 # Row 6: Turbo Adoption Over Time
 st.subheader("Turbo Adoption Over Time")
 
-turbo_year = (filtered_df.groupby(["Year", "Engine_Type"], observed=True)["Sales Volume"].sum().reset_index())
-fig9 = px.area(turbo_year, x="Year", y="Sales Volume", color="Engine_Type", template="plotly")
-fig9.update_layout(legend_title_text="Engine Type")
+turbo_year = (filtered_df.groupby(["Year", "Induction"], observed=True)["Sales Volume"].sum().reset_index())
+fig9 = px.area(turbo_year, x="Year", y="Sales Volume", color="Induction", template="plotly")
+fig9.update_layout(legend_title_text="Induction")
 st.plotly_chart(fig9, use_container_width=True)
 
 

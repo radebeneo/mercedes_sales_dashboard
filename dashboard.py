@@ -223,7 +223,7 @@ def update_dashboard(selected_models, selected_fuels, price_range):
 
     # Assignment of Turbo and Non-Turbo Labels
     filtered_df = filtered_df.assign(
-        Engine_Type=filtered_df["Turbo"].map({
+        Induction=filtered_df["Turbo"].map({
             "No": "Naturally Aspirated",
             "Yes": "Turbocharged"
         })
@@ -240,19 +240,19 @@ def update_dashboard(selected_models, selected_fuels, price_range):
 
     fig7 = px.box(
         box_df,
-        x="Engine_Type",
+        x="Induction",
         y="Base Price (USD)",
-        color="Engine_Type",
+        color="Induction",
         title="Price Distribution: Turbocharged vs Naturally Aspirated",
         template="plotly_dark"
     )
 
-    fig7.update_layout(xaxis_title="Engine Type",legend_title_text="Engine Type")
+    fig7.update_layout(xaxis_title="Induction",legend_title_text="Induction")
 
     # 8. Sales Volume by Model & Turbo
     turbo_sales = (
         filtered_df
-        .groupby(["Model", "Engine_Type"], observed=True)["Sales Volume"]
+        .groupby(["Model", "Induction"], observed=True)["Sales Volume"]
         .sum()
         .reset_index()
     )
@@ -262,13 +262,13 @@ def update_dashboard(selected_models, selected_fuels, price_range):
         turbo_sales,
         x="Model",
         y="Sales Volume",
-        color="Engine_Type",
+        color="Induction",
         barmode="stack",
         title="Total Sales Volume by Model & Turbo",
         template="plotly_dark"
     )
 
-    fig8.update_layout(legend_title_text="Engine Type", xaxis_title="Model")
+    fig8.update_layout(legend_title_text="Induction", xaxis_title="Model")
 
 
     # 9. Turbo Adoption Over Time
@@ -276,7 +276,7 @@ def update_dashboard(selected_models, selected_fuels, price_range):
 
     turbo_year = (
         filtered_df
-        .groupby(["Year", "Engine_Type"], observed=True)["Sales Volume"]
+        .groupby(["Year", "Induction"], observed=True)["Sales Volume"]
         .sum()
         .reset_index()
     )
@@ -285,12 +285,12 @@ def update_dashboard(selected_models, selected_fuels, price_range):
         turbo_year,
         x="Year",
         y="Sales Volume",
-        color="Engine_Type",
+        color="Induction",
         title="Turbo Adoption Over Time ",
         template="plotly_dark"
     )
 
-    fig9.update_layout(legend_title_text="Engine Type")
+    fig9.update_layout(legend_title_text="Induction")
 
     # DataTable - LIMIT TO 1000 ROWS
     table_data = filtered_df.head(1000).to_dict("records")
