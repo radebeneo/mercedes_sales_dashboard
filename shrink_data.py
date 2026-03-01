@@ -3,10 +3,10 @@ import pandas as pd
 
 df = pd.read_parquet("mercedes_benz_sales_2020_2025.parquet")
 
-# Pre-calculate the sums for every possible combination our filters
+# Pre-calculate the sums for every possible combination of our filters
 
 summary_df = df.groupby(
-    ["Year", "Model", "Fuel Type", "Color", "Base Price (USD)", "Horsepower"],
+    ["Year", "Model", "Fuel Type", "Color", "Base Price (USD)", "Horsepower", "Turbo"],
     observed=True
 )["Sales Volume"].sum().reset_index()
 
