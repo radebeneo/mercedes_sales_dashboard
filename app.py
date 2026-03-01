@@ -83,7 +83,7 @@ if selected_price_ranges:
         filtered_df = filtered_df[final_price_mask]
 
 # --- Main UI ---
-st.title("🚗 Mercedes-Benz Global Sales 2020-2025")
+st.title("Mercedes-Benz Global Sales 2020-2025")
 st.markdown("---")
 
 # Row 1: Sales Trends & Popularity
