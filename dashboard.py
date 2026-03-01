@@ -32,7 +32,7 @@ dtypes = {
     "Horsepower": "int16",
 }
 
-df = pd.read_parquet("mercedes_benz_sales_2020_2025.parquet", columns=use_cols, engine='pyarrow')
+df = pd.read_parquet("mercedes_lean.parquet", columns=use_cols, engine='pyarrow')
 
 for col, dtype in dtypes.items():
     df[col] = df[col].astype(dtype)
