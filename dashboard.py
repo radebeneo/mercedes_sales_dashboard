@@ -101,6 +101,18 @@ app.layout = dbc.Container([
 
 
     dbc.Row([
+        dbc.Col([html.H4("Turbo vs Non-Turbo Price Distribution"),
+                 loading_graph("turbo-boxplot")], width=6),
+        dbc.Col([html.H4("Sales Volume by Model & Turbo"),
+                 loading_graph("turbo-stacked-bar")], width=6),
+    ], className="mt-4"),
+
+    dbc.Row([
+        dbc.Col([html.H4("Turbo Adoption Over Time "),
+                 loading_graph("turbo-area-chart")], width=12),
+    ], className="mt-4"),
+
+    dbc.Row([
         dbc.Col([
             html.H4("Sample Data View"),
             dash_table.DataTable(
@@ -114,18 +126,6 @@ app.layout = dbc.Container([
         ], width=12)
     ], className="my-5"),
 
-    dbc.Row([
-        dbc.Col([html.H4("Turbo vs Non-Turbo Price Distribution"),
-                 loading_graph("turbo-boxplot")], width=6),
-        dbc.Col([html.H4("Sales Volume by Model & Turbo"),
-                 loading_graph("turbo-stacked-bar")], width=6),
-    ], className="mt-4"),
-
-    dbc.Row([
-        dbc.Col([html.H4("Turbo Adoption Over Time (100% Stacked)"),
-                 loading_graph("turbo-area-chart")], width=12),
-    ], className="mt-4"),
-
 ], fluid=True)
 
 
@@ -138,9 +138,9 @@ app.layout = dbc.Container([
      Output("price-histogram", "figure"),
      Output("price-vs-performance-scatterplot", "figure"),
      Output("colour-treemap", "figure"),
-     Output("turbo-area-chart", "figure"),
-     Output("turbo-stacked-bar", "figure"),
      Output("turbo-boxplot", "figure"),
+     Output("turbo-stacked-bar", "figure"),
+     Output("turbo-area-chart", "figure"),
      Output("datatable-output", "data")],
     [Input("model-dropdown", "value"),
      Input("fuel-dropdown", "value"),
@@ -221,54 +221,76 @@ def update_dashboard(selected_models, selected_fuels, price_range):
         template="plotly_dark"
     )
 
-    # 7. Turbo Adoption Over Time
-    turbo_year = (
+    # Assignment of Turbo and Non-Turbo Labels
+    filtered_df = filtered_df.assign(
+        Engine_Type=filtered_df["Turbo"].map({
+            "No": "Naturally Aspirated",
+            "Yes": "Turbocharged"
+        })
+    )
+
+    # 7. Turbo vs. Non-Turbo Price Distribution
+
+    # --- Turbo Boxplot (sample for performance) ---
+    if len(filtered_df) > 50000:
+        box_df = filtered_df.sample(50000)
+    else:
+        box_df = filtered_df
+
+
+    fig7 = px.box(
+        box_df,
+        x="Engine_Type",
+        y="Base Price (USD)",
+        color="Engine_Type",
+        title="Price Distribution: Turbocharged vs Naturally Aspirated",
+        template="plotly_dark"
+    )
+
+    fig7.update_layout(xaxis_title="Engine Type",legend_title_text="Engine Type")
+
+    # 8. Sales Volume by Model & Turbo
+    turbo_sales = (
         filtered_df
-        .groupby(["Year", "Turbo"], observed=True)["Sales Volume"]
+        .groupby(["Model", "Engine_Type"], observed=True)["Sales Volume"]
         .sum()
         .reset_index()
     )
 
-    fig7 = px.area(
-        turbo_year,
-        x="Year",
-        y="Sales Volume",
-        color="Turbo",
-        title="Turbo Adoption Over Time ",
-        template="plotly_dark"
-    )
-
-    fig7.update_layout(yaxis_title="Total Sales Volume", xaxis_title="Year")
-
-    # 8. Sales Volume by Model & Turbo
-    turbo_sales = ( filtered_df.groupby(["Model", "Turbo"], observed=True)["Sales Volume"].sum().reset_index())
 
     fig8 = px.bar(
         turbo_sales,
         x="Model",
         y="Sales Volume",
-        color="Turbo",
+        color="Engine_Type",
         barmode="stack",
         title="Total Sales Volume by Model & Turbo",
         template="plotly_dark"
     )
 
-    # 9. Turbo vs. Non-Turbo Price Distribution
+    fig8.update_layout(legend_title_text="Engine Type", xaxis_title="Model")
 
-    # --- Turbo Boxplot (sample for performance) ---
-    if len(filtered_df) > 100000:
-        box_df = filtered_df.sample(100000)
-    else:
-        box_df = filtered_df
 
-    fig9 = px.box(
-        box_df,
-        x="Turbo",
-        y="Base Price (USD)",
-        color="Turbo",
-        title="Price Distribution: Turbocharged vs Naturally Aspirated",
+    # 9. Turbo Adoption Over Time
+
+
+    turbo_year = (
+        filtered_df
+        .groupby(["Year", "Engine_Type"], observed=True)["Sales Volume"]
+        .sum()
+        .reset_index()
+    )
+
+    fig9 = px.area(
+        turbo_year,
+        x="Year",
+        y="Sales Volume",
+        color="Engine_Type",
+        title="Turbo Adoption Over Time ",
         template="plotly_dark"
     )
+
+    fig9.update_layout(legend_title_text="Engine Type")
 
     # DataTable - LIMIT TO 1000 ROWS
     table_data = filtered_df.head(1000).to_dict("records")
